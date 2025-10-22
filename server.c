@@ -75,9 +75,38 @@ int main(int argc, char *argv[]) {
             exit(1);
         }
 
-        /* handle the new connection request  */
-        /* write out our message to the client */
-        write(simpleChildSocket, MESSAGE, strlen(MESSAGE));
+        /* READ THE NAME SENT BY THE CLIENT (up to newline or EOF) */
+        char buf[512];
+        ssize_t total = 0;
+        ssize_t n;
+        while (total < (ssize_t)sizeof(buf)-1) {
+            n = read(simpleChildSocket, buf + total, sizeof(buf)-1 - total);
+            if (n <= 0) break;
+            total += n;
+            if (memchr(buf, '\n', total)) break;
+        }
+        if (total <= 0) {
+            close(simpleChildSocket);
+            continue;
+        }
+        buf[total] = '\0';
+        /* remove trailing CR/LF if present */
+        char *nl = strchr(buf, '\n');
+        if (nl) *nl = '\0';
+        char *cr = strchr(buf, '\r');
+        if (cr) *cr = '\0';
+
+        /* print client name */
+        char *clientIP = inet_ntoa(clientName.sin_addr);
+        int clientPort = ntohs(clientName.sin_port);
+        fprintf(stderr, "Connection from %s:%d - received name: \"%s\"\n",
+                clientIP, clientPort, buf);
+
+        /* send greeting to the client */
+        char reply[600];
+        snprintf(reply, sizeof(reply), "Ciao %s!\n", buf);
+        write(simpleChildSocket, reply, strlen(reply));
+
         close(simpleChildSocket);
     }
     

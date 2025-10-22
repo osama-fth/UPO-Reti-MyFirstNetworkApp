@@ -20,6 +20,22 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
+    /* ask the user for their name */
+    char name[256];
+    printf("Inserisci il tuo nome: ");
+    fflush(stdout);
+    if (!fgets(name, sizeof(name), stdin)) {
+        fprintf(stderr, "Invalid input\n");
+        exit(1);
+    }
+    /* remove newline */
+    char *nl = strchr(name, '\n');
+    if (nl) *nl = '\0';
+    if (name[0] == '\0') {
+        fprintf(stderr, "Empty name, exiting\n");
+        exit(1);
+    }
+
     /* create a streaming socket      */
     simpleSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
@@ -28,7 +44,7 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
     else {
-	    fprintf(stderr, "Socket created!\n");
+        fprintf(stderr, "Socket created!\n");
     }
 
     /* retrieve the port number for connecting */
@@ -44,24 +60,34 @@ int main(int argc, char *argv[]) {
     returnStatus = connect(simpleSocket, (struct sockaddr *)&simpleServer, sizeof(simpleServer));
 
     if (returnStatus == 0) {
-	    fprintf(stderr, "Connect successful!\n");
+        fprintf(stderr, "Connect successful!\n");
     }
     else {
         fprintf(stderr, "Could not connect to address!\n");
-	close(simpleSocket);
-	exit(1);
+    close(simpleSocket);
+    exit(1);
     }
 
-    /* get the message from the server   */
-    returnStatus = read(simpleSocket, buffer, sizeof(buffer));
+    /* SEND THE NAME TO THE SERVER (append newline) */
+    char sendbuf[300];
+    snprintf(sendbuf, sizeof(sendbuf), "%s\n", name);
+    if (write(simpleSocket, sendbuf, strlen(sendbuf)) < 0) {
+        perror("write");
+        close(simpleSocket);
+        exit(1);
+    }
 
-    if ( returnStatus > 0 ) {
-        printf("%d: %s", returnStatus, buffer);
-    } else {
-        fprintf(stderr, "Return Status = %d \n", returnStatus);
+    /* read the server response */
+    ssize_t nread;
+    char rbuf[512];
+    while ((nread = read(simpleSocket, rbuf, sizeof(rbuf)-1)) > 0) {
+        rbuf[nread] = '\0';
+        printf("%s", rbuf);
+    }
+    if (nread < 0) {
+        perror("read");
     }
 
     close(simpleSocket);
     return 0;
 }
- 

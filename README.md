@@ -1,45 +1,47 @@
-# 🔗 myFirstNetworkApp — Demo di rete in C
+# 🔗 myFirstNetworkApp — Dimostrazione minima di rete in C
 
-![Linguaggio: C](https://img.shields.io/badge/Linguaggio-C-00599C?logo=c&logoColor=white)
-![Build: Makefile](https://img.shields.io/badge/build-Makefile-orange?logo=gnu&logoColor=white)
-![Protocol: TCP](https://img.shields.io/badge/protocollo-TCP%20%2F%20Sockets-2ea44f)
+![Language: C](https://img.shields.io/badge/Language-C-00599C?logo=c&logoColor=white)
+![Protocol: TCP](https://img.shields.io/badge/protocol-TCP%20%2F%20Sockets-2ea44f)
 
-Esempio minimale di programmazione di rete (sockets) in C:
-- Server TCP: invia “Hello UPO student!” a ogni client che si connette.
-- Client TCP: si connette, legge una singola risposta e la stampa.
+Esempio minimale di programmazione di rete (socket) in C:
+- Server TCP: accetta una connessione, legge il nome del client e risponde con un saluto.
+- Client TCP: chiede all'utente il proprio nome, si connette al server, invia il nome e stampa la risposta del server.
 
 ## 📁 Struttura
-- Server: [server.c](/Users/osamafoutih/Desktop/uni/2anno/reti/myFirstNetworkApp/server.c)
-- Client: [client.c](/Users/osamafoutih/Desktop/uni/2anno/reti/myFirstNetworkApp/client.c)
-- Makefile: [Makefile](/Users/osamafoutih/Desktop/uni/2anno/reti/myFirstNetworkApp/Makefile)
+- Server: `server.c`
+- Client: `client.c`
 
-## 🛠️ Build
-Usa il Makefile .
+## 🛠️ Compilazione
 ```sh
 cd myFirstNetworkApp
-gcc server.c  -o server 
-gcc client.c  -o client
+gcc server.c -o server
+gcc client.c -o client
 ```
 
 ## ▶️ Esecuzione
-Apri due terminali.
+Aprire due terminali.
 
-1) Avvia il server (porta 5000 di esempio):
+1) Avviare il server (es. porta 5000):
 ```sh
 ./server 5000
 ```
 
-2) Avvia il client (IP locale e stessa porta):
+2) Avviare il client da un altro terminale:
 ```sh
 ./client 127.0.0.1 5000
 ```
-
-Output atteso del client (esempio):
+Il client chiederà:
 ```
-20: Hello UPO student!
+Inserisci il tuo nome:
+```
+Digitare un nome e premere Invio. Il server stamperà il nome ricevuto e il client visualizzerà il saluto del server.
+
+Esempio output del server (stderr):
+```
+Connection from 127.0.0.1:XXXXX - received name: "Mario"
 ```
 
-## ❓ Note
-- Dimostrazione didattica di reti con socket in C (modello client/server TCP).
-- Il server serve più connessioni in sequenza (blocking I/O).
-- Il messaggio inviato dal server è definito in `server.c` come `MESSAGE`.
+Esempio output del client:
+```
+Ciao Mario!
+```
